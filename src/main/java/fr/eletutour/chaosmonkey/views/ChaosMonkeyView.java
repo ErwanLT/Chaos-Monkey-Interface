@@ -10,6 +10,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -548,9 +549,21 @@ public class ChaosMonkeyView extends AppLayout {
         TextField killAppCronField = new TextField("Expression Cron");
         killAppCronField.setPlaceholder("0 0/15 * * * ?");
         
+        // Label explicatif pour l'expression cron
+        Label killAppCronExplanation = new Label("Planification: Non définie");
+        killAppCronExplanation.getStyle().set("font-size", "var(--lumo-font-size-xs)");
+        killAppCronExplanation.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        
+        // Mettre à jour l'explication lorsque la valeur change
+        killAppCronField.addValueChangeListener(event -> {
+            killAppCronExplanation.setText("Planification: " + explainCronExpression(event.getValue()));
+        });
+        
         // Désactiver le champ si la case n'est pas cochée
         killAppActiveCheck.addValueChangeListener(event -> {
-            killAppCronField.setEnabled(event.getValue());
+            boolean enabled = event.getValue();
+            killAppCronField.setEnabled(enabled);
+            killAppCronExplanation.setVisible(enabled);
         });
         
         // Liaison avec le binder
@@ -559,6 +572,7 @@ public class ChaosMonkeyView extends AppLayout {
         
         killAppForm.add(killAppActiveCheck, 2);
         killAppForm.add(killAppCronField, 2);
+        killAppForm.add(killAppCronExplanation, 2);
         
         mainLayout.add(new H3("Kill Application"), killAppForm);
         
@@ -571,6 +585,16 @@ public class ChaosMonkeyView extends AppLayout {
         Checkbox memoryActiveCheck = new Checkbox("Activer assault mémoire");
         TextField memoryCronField = new TextField("Expression Cron");
         memoryCronField.setPlaceholder("0 0/15 * * * ?");
+        
+        // Label explicatif pour l'expression cron
+        Label memoryCronExplanation = new Label("Planification: Non définie");
+        memoryCronExplanation.getStyle().set("font-size", "var(--lumo-font-size-xs)");
+        memoryCronExplanation.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        
+        // Mettre à jour l'explication lorsque la valeur change
+        memoryCronField.addValueChangeListener(event -> {
+            memoryCronExplanation.setText("Planification: " + explainCronExpression(event.getValue()));
+        });
         
         IntegerField memoryHoldField = new IntegerField("Durée de remplissage (ms)");
         memoryHoldField.setMin(1500);
@@ -594,6 +618,7 @@ public class ChaosMonkeyView extends AppLayout {
         memoryActiveCheck.addValueChangeListener(event -> {
             boolean enabled = event.getValue();
             memoryCronField.setEnabled(enabled);
+            memoryCronExplanation.setVisible(enabled);
             memoryHoldField.setEnabled(enabled);
             memoryWaitField.setEnabled(enabled);
             memoryIncrementField.setEnabled(enabled);
@@ -610,6 +635,7 @@ public class ChaosMonkeyView extends AppLayout {
         
         memoryForm.add(memoryActiveCheck, 2);
         memoryForm.add(memoryCronField, 2);
+        memoryForm.add(memoryCronExplanation, 2);
         memoryForm.add(memoryHoldField, memoryWaitField);
         memoryForm.add(memoryIncrementField, memoryTargetField);
         
@@ -625,6 +651,16 @@ public class ChaosMonkeyView extends AppLayout {
         TextField cpuCronField = new TextField("Expression Cron");
         cpuCronField.setPlaceholder("0 0/15 * * * ?");
         
+        // Label explicatif pour l'expression cron
+        Label cpuCronExplanation = new Label("Planification: Non définie");
+        cpuCronExplanation.getStyle().set("font-size", "var(--lumo-font-size-xs)");
+        cpuCronExplanation.getStyle().set("color", "var(--lumo-secondary-text-color)");
+        
+        // Mettre à jour l'explication lorsque la valeur change
+        cpuCronField.addValueChangeListener(event -> {
+            cpuCronExplanation.setText("Planification: " + explainCronExpression(event.getValue()));
+        });
+        
         IntegerField cpuHoldField = new IntegerField("Durée de charge (ms)");
         cpuHoldField.setMin(1500);
         cpuHoldField.setMax(Integer.MAX_VALUE);
@@ -638,6 +674,7 @@ public class ChaosMonkeyView extends AppLayout {
         cpuActiveCheck.addValueChangeListener(event -> {
             boolean enabled = event.getValue();
             cpuCronField.setEnabled(enabled);
+            cpuCronExplanation.setVisible(enabled);
             cpuHoldField.setEnabled(enabled);
             cpuLoadField.setEnabled(enabled);
         });
@@ -650,6 +687,7 @@ public class ChaosMonkeyView extends AppLayout {
         
         cpuForm.add(cpuActiveCheck, 2);
         cpuForm.add(cpuCronField, 2);
+        cpuForm.add(cpuCronExplanation, 2);
         cpuForm.add(cpuHoldField, cpuLoadField);
         
         mainLayout.add(new H3("CPU"), cpuForm);
@@ -837,6 +875,66 @@ public class ChaosMonkeyView extends AppLayout {
         } else {
             badge.getStyle().set("background-color", "var(--lumo-error-color-10pct)");
             badge.getStyle().set("color", "var(--lumo-error-text-color)");
+        }
+    }
+
+    /**
+     * Analyse une expression cron et retourne une explication en français.
+     */
+    private String explainCronExpression(String cronExpression) {
+        if (cronExpression == null || cronExpression.trim().isEmpty()) {
+            return "Non définie";
+        }
+        
+        try {
+            String[] parts = cronExpression.trim().split("\\s+");
+            if (parts.length < 6) {
+                return "Expression incomplète";
+            }
+            
+            // Analyse des parties standards d'une expression cron : secondes minutes heures jour_du_mois mois jour_de_semaine
+            String seconds = parts[0];
+            String minutes = parts[1];
+            String hours = parts[2];
+            String dayOfMonth = parts[3];
+            String month = parts[4];
+            String dayOfWeek = parts[5];
+            
+            // Construction d'une explication
+            StringBuilder explanation = new StringBuilder();
+            
+            // Analyser la fréquence
+            if ("0".equals(seconds) && "0/15".equals(minutes) && "*".equals(hours)) {
+                explanation.append("Toutes les 15 minutes");
+            } else if ("0".equals(seconds) && "0".equals(minutes) && "*/1".equals(hours)) {
+                explanation.append("Toutes les heures (à l'heure pile)");
+            } else if ("0".equals(seconds) && "0".equals(minutes) && "*".equals(hours)) {
+                explanation.append("Chaque heure à minuit");
+            } else if ("0".equals(seconds) && "0".equals(minutes) && "12".equals(hours)) {
+                explanation.append("À midi tous les jours");
+            } else if ("0".equals(seconds) && "0".equals(minutes) && "0".equals(hours)) {
+                explanation.append("À minuit tous les jours");
+            } else if ("0".equals(seconds) && "*/5".equals(minutes)) {
+                explanation.append("Toutes les 5 minutes");
+            } else if ("0".equals(seconds) && "*/10".equals(minutes)) {
+                explanation.append("Toutes les 10 minutes");
+            } else if ("0".equals(seconds) && "*/30".equals(minutes)) {
+                explanation.append("Toutes les 30 minutes");
+            } else {
+                // Explication générale pour les cas non spécifiquement traités
+                explanation.append("Secondes: ").append(seconds)
+                          .append(", Minutes: ").append(minutes)
+                          .append(", Heures: ").append(hours);
+                
+                if (!"*".equals(dayOfMonth) || !"*".equals(month) || !"?".equals(dayOfWeek)) {
+                    explanation.append(", restreint par jour/mois");
+                }
+            }
+            
+            return explanation.toString();
+        } catch (Exception e) {
+            LOGGER.warn("Erreur lors de l'analyse de l'expression cron: {}", cronExpression, e);
+            return "Expression non reconnue";
         }
     }
 }
