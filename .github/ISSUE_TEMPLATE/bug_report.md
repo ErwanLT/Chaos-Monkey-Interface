@@ -1,38 +1,43 @@
 ---
-name: Bug report
-about: Create a report to help us improve
-title: ''
-labels: ''
+name: Rapport de bug
+about: Signaler un problème pour nous aider à améliorer l'interface
+title: '[BUG] '
+labels: 'bug'
 assignees: ''
 
 ---
 
-**Describe the bug**
-A clear and concise description of what the bug is.
+**Description du problème**
+Une description claire et concise du bug rencontré.
 
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
+**Étapes pour reproduire**
+Actions à effectuer pour reproduire le comportement :
+1. Aller à '...'
+2. Cliquer sur '...'
+3. Configurer '...'
+4. Observer l'erreur
 
-**Expected behavior**
-A clear and concise description of what you expected to happen.
+**Comportement attendu**
+Une description claire et concise de ce qui était censé se produire.
 
-**Screenshots**
-If applicable, add screenshots to help explain your problem.
+**Captures d'écran**
+Si possible, ajoutez des captures d'écran pour illustrer le problème.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - Browser [e.g. chrome, safari]
- - Version [e.g. 22]
+**Environnement (veuillez compléter les informations suivantes) :**
+ - Système d'exploitation : [ex. Windows 10, macOS 12.4]
+ - Navigateur : [ex. Chrome 102, Firefox 98]
+ - Version de l'interface : [ex. 1.0.0]
+ - Version de Java : [ex. 21.0.1]
+ - Version de Spring Boot : [ex. 3.4.5]
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
+**Application Chaos Monkey cible :**
+ - Version de Chaos Monkey : [ex. 3.0.0]
+ - Configuration particulière : [ex. endpoints actuator personnalisés]
 
-**Additional context**
-Add any other context about the problem here.
+**Contexte supplémentaire**
+Ajoutez ici toute autre information pertinente concernant le problème.
+
+**Journaux d'erreur**
+```
+Collez ici les journaux d'erreur pertinents (si disponibles)
+```
