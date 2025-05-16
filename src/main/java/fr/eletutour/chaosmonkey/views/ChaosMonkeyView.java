@@ -10,7 +10,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
@@ -550,7 +550,7 @@ public class ChaosMonkeyView extends AppLayout {
         killAppCronField.setPlaceholder("0 0/15 * * * ?");
         
         // Label explicatif pour l'expression cron
-        Label killAppCronExplanation = new Label("Planification: Non définie");
+        NativeLabel killAppCronExplanation = new NativeLabel("Planification: Non définie");
         killAppCronExplanation.getStyle().set("font-size", "var(--lumo-font-size-xs)");
         killAppCronExplanation.getStyle().set("color", "var(--lumo-secondary-text-color)");
         
@@ -587,7 +587,7 @@ public class ChaosMonkeyView extends AppLayout {
         memoryCronField.setPlaceholder("0 0/15 * * * ?");
         
         // Label explicatif pour l'expression cron
-        Label memoryCronExplanation = new Label("Planification: Non définie");
+        NativeLabel memoryCronExplanation = new NativeLabel("Planification: Non définie");
         memoryCronExplanation.getStyle().set("font-size", "var(--lumo-font-size-xs)");
         memoryCronExplanation.getStyle().set("color", "var(--lumo-secondary-text-color)");
         
@@ -652,7 +652,7 @@ public class ChaosMonkeyView extends AppLayout {
         cpuCronField.setPlaceholder("0 0/15 * * * ?");
         
         // Label explicatif pour l'expression cron
-        Label cpuCronExplanation = new Label("Planification: Non définie");
+        NativeLabel cpuCronExplanation = new NativeLabel("Planification: Non définie");
         cpuCronExplanation.getStyle().set("font-size", "var(--lumo-font-size-xs)");
         cpuCronExplanation.getStyle().set("color", "var(--lumo-secondary-text-color)");
         
