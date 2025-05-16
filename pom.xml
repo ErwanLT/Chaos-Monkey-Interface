@@ -117,7 +117,7 @@
 				<configuration>
 					<tagNameFormat>v@{project.version}</tagNameFormat>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
-					<releaseProfiles>release</releaseProfiles>
+					<releaseProfiles>production</releaseProfiles>
 					<goals>deploy</goals>
 				</configuration>
 			</plugin>
