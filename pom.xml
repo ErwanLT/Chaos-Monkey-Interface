@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>fr.eletutour.chaosmonkey</groupId>
 	<artifactId>interface</artifactId>
-	<version>1.0.0</version>
+	<version>1.0.1-SNAPSHOT</version>
 	<name>interface</name>
 	<description>Demo project for Spring Boot</description>
 	<url />
@@ -23,7 +23,7 @@
 		<url>https://github.com/ErwanLT/Chaos-Monkey-Interface.git</url>
 		<connection>scm:git:ssh://git@github.com/ErwanLT/Chaos-Monkey-Interface.git</connection>
 		<developerConnection>scm:git:ssh://git@github.com/ErwanLT/Chaos-Monkey-Interface.git</developerConnection>
-		<tag>v1.0.0</tag>
+		<tag>HEAD</tag>
 	</scm>
 	<properties>
 		<java.version>21</java.version>
