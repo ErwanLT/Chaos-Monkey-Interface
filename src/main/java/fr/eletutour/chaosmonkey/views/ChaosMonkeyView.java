@@ -32,6 +32,8 @@ import fr.eletutour.chaosmonkey.service.ChaosMonkeyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
+import com.vaadin.flow.component.accordion.Accordion;
+import com.vaadin.flow.component.accordion.AccordionPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -189,22 +191,27 @@ public class ChaosMonkeyView extends AppLayout {
         mainContent.setSpacing(false);
         mainContent.setPadding(true);
         
-        // Section de contrôle
+        // Créer un accordion pour organiser les sections
+        Accordion mainAccordion = new Accordion();
+        mainAccordion.setWidthFull();
+        
+        // Améliorer le style des en-têtes de l'accordion principal
+        mainAccordion.getElement().getStyle().set("--lumo-font-size-m", "var(--lumo-font-size-l)");
+        mainAccordion.getElement().getStyle().set("--lumo-font-weight-semibold", "900");
+        
+        // Section de contrôle (garder cette section toujours visible, pas dans l'accordion)
         VerticalLayout controlSection = new VerticalLayout();
         controlSection.add(new H2("Contrôle"));
         controlSection.add(createControlPanel());
         
-        // Section de configuration des Watchers
-        VerticalLayout watcherSection = new VerticalLayout();
-        watcherSection.add(new H2("Configuration des Watchers"));
-        watcherSection.add(createWatcherPanel());
+        // Ajouter les sections à l'accordion avec des titres
+        mainAccordion.add("Configuration des Watchers", createWatcherPanel());
         
-        // Section de configuration des Assaults
-        VerticalLayout assaultSection = new VerticalLayout();
-        assaultSection.add(new H2("Configuration des Assaults"));
-        assaultSection.add(createAssaultPanel());
+        // Ajouter directement le panneau d'assaults
+        mainAccordion.add("Configuration des Assaults", createAssaultPanel());
         
-        mainContent.add(controlSection, watcherSection, assaultSection);
+        // Ajouter le panneau de contrôle et l'accordion au contenu principal
+        mainContent.add(controlSection, mainAccordion);
     }
 
     private Component createControlPanel() {
@@ -458,11 +465,11 @@ public class ChaosMonkeyView extends AppLayout {
     }
 
     private Component createAssaultPanel() {
-        // Conteneur principal
+        // Conteneur principal pour organiser les sections d'assaults
         VerticalLayout mainLayout = new VerticalLayout();
         mainLayout.setSpacing(true);
         
-        // Configuration générale
+        // Panneau de configuration générale
         FormLayout generalForm = new FormLayout();
         generalForm.setResponsiveSteps(
                 new FormLayout.ResponsiveStep("0", 1),
@@ -480,6 +487,7 @@ public class ChaosMonkeyView extends AppLayout {
         
         generalForm.add(levelField, deterministicCheck);
         
+        // Ajouter au layout principal avec un titre
         mainLayout.add(new H3("Configuration générale"), generalForm);
         
         // Section latence
@@ -513,6 +521,7 @@ public class ChaosMonkeyView extends AppLayout {
         latencyForm.add(latencyActiveCheck, 2);
         latencyForm.add(latencyStartField, latencyEndField);
         
+        // Ajouter au layout principal avec un titre
         mainLayout.add(new H3("Latence"), latencyForm);
         
         // Section exceptions
@@ -537,6 +546,7 @@ public class ChaosMonkeyView extends AppLayout {
         exceptionsForm.add(exceptionsActiveCheck, 2);
         exceptionsForm.add(exceptionTypeField, 2);
         
+        // Ajouter au layout principal avec un titre
         mainLayout.add(new H3("Exceptions"), exceptionsForm);
         
         // Section Kill Application
@@ -574,6 +584,7 @@ public class ChaosMonkeyView extends AppLayout {
         killAppForm.add(killAppCronField, 2);
         killAppForm.add(killAppCronExplanation, 2);
         
+        // Ajouter au layout principal avec un titre
         mainLayout.add(new H3("Kill Application"), killAppForm);
         
         // Section Mémoire
@@ -639,6 +650,7 @@ public class ChaosMonkeyView extends AppLayout {
         memoryForm.add(memoryHoldField, memoryWaitField);
         memoryForm.add(memoryIncrementField, memoryTargetField);
         
+        // Ajouter au layout principal avec un titre
         mainLayout.add(new H3("Mémoire"), memoryForm);
         
         // Section CPU
@@ -690,6 +702,7 @@ public class ChaosMonkeyView extends AppLayout {
         cpuForm.add(cpuCronExplanation, 2);
         cpuForm.add(cpuHoldField, cpuLoadField);
         
+        // Ajouter au layout principal avec un titre
         mainLayout.add(new H3("CPU"), cpuForm);
         
         // Section services personnalisés
@@ -720,7 +733,7 @@ public class ChaosMonkeyView extends AppLayout {
             // Continuer sans les services disponibles
         }
         
-        // Remplacer le ComboBox par un MultiSelectComboBox pour sélectionner depuis les services disponibles
+        // MultiSelectComboBox pour sélectionner depuis les services disponibles
         MultiSelectComboBox<String> serviceSelect = new MultiSelectComboBox<>("Sélectionner des services");
         serviceSelect.setItems(availableServices);
         serviceSelect.setWidth("400px"); // Agrandir le composant
@@ -748,8 +761,10 @@ public class ChaosMonkeyView extends AppLayout {
         HorizontalLayout serviceSelectionLayout = new HorizontalLayout(serviceSelect, addServiceButton);
         serviceSelectionLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
         
-        customServicesSection.add(new H3("Services personnalisés"), servicesList, serviceSelectionLayout);
-        mainLayout.add(customServicesSection);
+        customServicesSection.add(servicesList, serviceSelectionLayout);
+        
+        // Ajouter au layout principal avec un titre
+        mainLayout.add(new H3("Services personnalisés"), customServicesSection);
         
         // Bouton de soumission
         final Button submitButton = new Button("Mettre à jour");
@@ -804,9 +819,11 @@ public class ChaosMonkeyView extends AppLayout {
         latencyEndField.setEnabled(latencyActiveCheck.getValue());
         exceptionTypeField.setEnabled(exceptionsActiveCheck.getValue());
         killAppCronField.setEnabled(killAppActiveCheck.getValue());
+        killAppCronExplanation.setVisible(killAppActiveCheck.getValue());
         
         boolean memoryEnabled = memoryActiveCheck.getValue();
         memoryCronField.setEnabled(memoryEnabled);
+        memoryCronExplanation.setVisible(memoryEnabled);
         memoryHoldField.setEnabled(memoryEnabled);
         memoryWaitField.setEnabled(memoryEnabled);
         memoryIncrementField.setEnabled(memoryEnabled);
@@ -814,11 +831,19 @@ public class ChaosMonkeyView extends AppLayout {
         
         boolean cpuEnabled = cpuActiveCheck.getValue();
         cpuCronField.setEnabled(cpuEnabled);
+        cpuCronExplanation.setVisible(cpuEnabled);
         cpuHoldField.setEnabled(cpuEnabled);
         cpuLoadField.setEnabled(cpuEnabled);
 
         mainLayout.add(submitButton);
         mainLayout.setAlignSelf(FlexComponent.Alignment.END, submitButton);
+        
+        // Ajouter un peu de marge entre les sections pour améliorer la lisibilité
+        mainLayout.getChildren().forEach(component -> {
+            if (component instanceof H3) {
+                component.getElement().getStyle().set("margin-top", "1.5em");
+            }
+        });
         
         return mainLayout;
     }
