@@ -218,6 +218,10 @@ public class ChaosMonkeyView extends AppLayout {
         updateButtonState();
 
         final Button refreshButton = new Button("Rafraîchir", VaadinIcon.REFRESH.create());
+        refreshButton.getElement().setAttribute("title", 
+            "Utile uniquement si l'application Chaos Monkey a été modifiée par une autre source " +
+            "ou si vous suspectez une désynchronisation entre l'interface et la configuration réelle.");
+        
         refreshButton.addClickListener(e -> {
             try {
                 // Désactiver le bouton pendant le chargement
