@@ -127,6 +127,7 @@
 					<tagNameFormat>v@{project.version}</tagNameFormat>
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 					<releaseProfiles>production</releaseProfiles>
+					<preparationGoals>vaadin:prepare-frontend vaadin:build-frontend clean verify</preparationGoals>
 					<goals>deploy</goals>
 				</configuration>
 			</plugin>
