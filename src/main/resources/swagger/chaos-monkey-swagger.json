@@ -1,0 +1,737 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8089",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Actuator",
+      "description": "Monitor and interact",
+      "externalDocs": {
+        "description": "Spring Boot Actuator Web API Documentation",
+        "url": "https://docs.spring.io/spring-boot/docs/current/actuator-api/html/"
+      }
+    }
+  ],
+  "paths": {
+    "/actuator/chaosmonkey/watchers": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "de.codecentric.spring.boot.chaos.monkey.endpoints.ChaosMonkeyRestEndpoint#getWatcherProperties()",
+        "operationId": "getWatcherProperties",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/WatcherProperties"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "de.codecentric.spring.boot.chaos.monkey.endpoints.ChaosMonkeyRestEndpoint#updateWatcherProperties(WatcherPropertiesUpdate)",
+        "operationId": "updateWatcherProperties",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WatcherPropertiesUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/chaosmonkey/enable": {
+      "post": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "de.codecentric.spring.boot.chaos.monkey.endpoints.ChaosMonkeyRestEndpoint#enableChaosMonkey()",
+        "operationId": "enableChaosMonkey",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChaosMonkeyStatusResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/chaosmonkey/disable": {
+      "post": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "de.codecentric.spring.boot.chaos.monkey.endpoints.ChaosMonkeyRestEndpoint#disableChaosMonkey()",
+        "operationId": "disableChaosMonkey",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChaosMonkeyStatusResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/chaosmonkey/assaults": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "de.codecentric.spring.boot.chaos.monkey.endpoints.ChaosMonkeyRestEndpoint#getAssaultProperties()",
+        "operationId": "getAssaultProperties",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/AssaultPropertiesUpdate"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "de.codecentric.spring.boot.chaos.monkey.endpoints.ChaosMonkeyRestEndpoint#updateAssaultProperties(AssaultPropertiesUpdate)",
+        "operationId": "updateAssaultProperties",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AssaultPropertiesUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/chaosmonkey/assaults/runtime/attack": {
+      "post": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "de.codecentric.spring.boot.chaos.monkey.endpoints.ChaosMonkeyRestEndpoint#attack()",
+        "operationId": "attack",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "Actuator root web endpoint",
+        "operationId": "links",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.spring-boot.actuator.v3+json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/Link"
+                    }
+                  }
+                }
+              },
+              "application/vnd.spring-boot.actuator.v2+json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/Link"
+                    }
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/Link"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/info": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "Actuator web endpoint 'info'",
+        "operationId": "info",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.spring-boot.actuator.v3+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/vnd.spring-boot.actuator.v2+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/health": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "Actuator web endpoint 'health'",
+        "operationId": "health",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.spring-boot.actuator.v3+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/vnd.spring-boot.actuator.v2+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/env": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "Actuator web endpoint 'env'",
+        "operationId": "environment",
+        "parameters": [
+          {
+            "name": "pattern",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.spring-boot.actuator.v3+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/vnd.spring-boot.actuator.v2+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/env/{toMatch}": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "Actuator web endpoint 'env-toMatch'",
+        "operationId": "environmentEntry",
+        "parameters": [
+          {
+            "name": "toMatch",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.spring-boot.actuator.v3+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/vnd.spring-boot.actuator.v2+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/actuator/chaosmonkey": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "de.codecentric.spring.boot.chaos.monkey.endpoints.ChaosMonkeyRestEndpoint#status()",
+        "operationId": "status",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChaosMonkeySettingsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/chaosmonkey/status": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "de.codecentric.spring.boot.chaos.monkey.endpoints.ChaosMonkeyRestEndpoint#getStatus()",
+        "operationId": "getStatus",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChaosMonkeyStatusResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/actuator/beans": {
+      "get": {
+        "tags": [
+          "Actuator"
+        ],
+        "summary": "Actuator web endpoint 'beans'",
+        "operationId": "beans",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "application/vnd.spring-boot.actuator.v3+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/vnd.spring-boot.actuator.v2+json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "WatcherPropertiesUpdate": {
+        "type": "object",
+        "properties": {
+          "controller": {
+            "type": "boolean"
+          },
+          "restController": {
+            "type": "boolean"
+          },
+          "service": {
+            "type": "boolean"
+          },
+          "repository": {
+            "type": "boolean"
+          },
+          "component": {
+            "type": "boolean"
+          },
+          "restTemplate": {
+            "type": "boolean"
+          },
+          "webClient": {
+            "type": "boolean"
+          },
+          "actuatorHealth": {
+            "type": "boolean"
+          },
+          "beans": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ChaosMonkeyStatusResponseDto": {
+        "type": "object",
+        "properties": {
+          "enabledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "disabledAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "enabledFor": {
+            "$ref": "#/components/schemas/ValueDuration"
+          },
+          "enabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ValueDuration": {
+        "type": "object",
+        "properties": {
+          "raw": {
+            "type": "string",
+            "example": "PT2H30M"
+          },
+          "formatted": {
+            "type": "string"
+          }
+        }
+      },
+      "AssaultException": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "method": {
+            "type": "string"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ExceptionArgument"
+            }
+          }
+        },
+        "required": [
+          "arguments",
+          "method",
+          "type"
+        ]
+      },
+      "AssaultPropertiesUpdate": {
+        "type": "object",
+        "properties": {
+          "level": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 10000,
+            "minimum": 1
+          },
+          "deterministic": {
+            "type": "boolean"
+          },
+          "latencyRangeStart": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647,
+            "minimum": 1
+          },
+          "latencyRangeEnd": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647,
+            "minimum": 1
+          },
+          "latencyActive": {
+            "type": "boolean"
+          },
+          "exceptionsActive": {
+            "type": "boolean"
+          },
+          "exception": {
+            "$ref": "#/components/schemas/AssaultException"
+          },
+          "killApplicationActive": {
+            "type": "boolean"
+          },
+          "killApplicationCronExpression": {
+            "type": "string"
+          },
+          "memoryActive": {
+            "type": "boolean"
+          },
+          "memoryMillisecondsHoldFilledMemory": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647,
+            "minimum": 1500
+          },
+          "memoryMillisecondsWaitNextIncrease": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 30000,
+            "minimum": 100
+          },
+          "memoryFillIncrementFraction": {
+            "type": "number",
+            "format": "double",
+            "maximum": 1,
+            "minimum": 0
+          },
+          "memoryFillTargetFraction": {
+            "type": "number",
+            "format": "double",
+            "maximum": 0.95,
+            "minimum": 0.05
+          },
+          "memoryCronExpression": {
+            "type": "string"
+          },
+          "cpuActive": {
+            "type": "boolean"
+          },
+          "cpuMillisecondsHoldLoad": {
+            "type": "integer",
+            "format": "int32",
+            "maximum": 2147483647,
+            "minimum": 1500
+          },
+          "cpuLoadTargetFraction": {
+            "type": "number",
+            "format": "double",
+            "maximum": 1,
+            "minimum": 0.1
+          },
+          "cpuCronExpression": {
+            "type": "string"
+          },
+          "runtimeAssaultCronExpression": {
+            "type": "string",
+            "deprecated": true
+          },
+          "watchedCustomServices": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ExceptionArgument": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "type",
+          "value"
+        ]
+      },
+      "Link": {
+        "type": "object",
+        "properties": {
+          "href": {
+            "type": "string"
+          },
+          "templated": {
+            "type": "boolean"
+          }
+        }
+      },
+      "ChaosMonkeyProperties": {
+        "type": "object",
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "lastEnabledToggleTimestamp": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "togglePrefix": {
+            "type": "string"
+          }
+        }
+      },
+      "ChaosMonkeySettingsDto": {
+        "type": "object",
+        "properties": {
+          "chaosMonkeyProperties": {
+            "$ref": "#/components/schemas/ChaosMonkeyProperties"
+          },
+          "assaultProperties": {
+            "$ref": "#/components/schemas/AssaultPropertiesUpdate"
+          },
+          "watcherProperties": {
+            "$ref": "#/components/schemas/WatcherProperties"
+          }
+        }
+      },
+      "WatcherProperties": {
+        "type": "object",
+        "properties": {
+          "controller": {
+            "type": "boolean"
+          },
+          "restController": {
+            "type": "boolean"
+          },
+          "service": {
+            "type": "boolean"
+          },
+          "repository": {
+            "type": "boolean"
+          },
+          "component": {
+            "type": "boolean"
+          },
+          "restTemplate": {
+            "type": "boolean"
+          },
+          "webClient": {
+            "type": "boolean"
+          },
+          "actuatorHealth": {
+            "type": "boolean"
+          },
+          "beans": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
