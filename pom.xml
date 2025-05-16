@@ -9,7 +9,7 @@
 	</parent>
 	<groupId>fr.eletutour.chaosmonkey</groupId>
 	<artifactId>interface</artifactId>
-	<version>1.0.3</version>
+	<version>1.0.4-SNAPSHOT</version>
 	<name>interface</name>
 	<description>Demo project for Spring Boot</description>
 	<url />
