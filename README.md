@@ -97,11 +97,13 @@ Vous pouvez adapter ces paramètres en fonction de votre environnement, notammen
 Après le démarrage, l'interface est accessible à l'adresse: http://localhost:8080
 
 ### Panneau de contrôle
+![activation.png](img/activation.png)![desactivation.png](img/desactivation.png)
 
 - **Activer/Désactiver** Chaos Monkey avec un simple bouton
 - **Rafraîchir** pour mettre à jour la configuration affichée
 
 ### Configuration des Watchers
+![watcher.png](img/watcher.png)
 
 Permet de définir quels composants de votre application Spring seront ciblés par Chaos Monkey:
 - Cochez/décochez les cases pour activer/désactiver les différents types de watchers
@@ -110,6 +112,9 @@ Permet de définir quels composants de votre application Spring seront ciblés p
 - Cliquez sur "Mettre à jour" pour appliquer les modifications
 
 ### Configuration des Assaults
+![assault.png](img/assault.png)
+![assault2.png](img/assault2.png)
+![assault3.png](img/assault3.png)
 
 Permet de définir les types de défaillances à injecter et leurs paramètres:
 - **Latence**: injecte des délais dans l'exécution des méthodes
