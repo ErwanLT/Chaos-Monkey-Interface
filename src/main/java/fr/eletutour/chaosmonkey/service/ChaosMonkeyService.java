@@ -1,14 +1,15 @@
 package fr.eletutour.chaosmonkey.service;
 
-import fr.eletutour.chaosmonkey.consumer.api.ActuatorApi;
-import fr.eletutour.chaosmonkey.consumer.model.AssaultPropertiesUpdate;
-import fr.eletutour.chaosmonkey.consumer.model.ChaosMonkeyStatusResponseDto;
-import fr.eletutour.chaosmonkey.consumer.model.WatcherProperties;
-import fr.eletutour.chaosmonkey.consumer.model.WatcherPropertiesUpdate;
-import jakarta.validation.Valid;
+import fr.eletutour.chaosmonkey.models.AssaultPropertiesUpdate;
+import fr.eletutour.chaosmonkey.models.ChaosMonkeyStatusResponseDto;
+import fr.eletutour.chaosmonkey.models.WatcherProperties;
+import fr.eletutour.chaosmonkey.models.WatcherPropertiesUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,58 +19,100 @@ import java.util.Map;
 public class ChaosMonkeyService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ChaosMonkeyService.class);
-    private final ActuatorApi actuatorApiClient;
+    private final WebClient webClient;
 
-    public ChaosMonkeyService(ActuatorApi actuatorApiClient) {
-        this.actuatorApiClient = actuatorApiClient;
+    public ChaosMonkeyService(WebClient webClient) {
+        this.webClient = webClient;
     }
 
     public ChaosMonkeyStatusResponseDto getStatus() throws Exception {
-        return actuatorApiClient.getStatus();
+        LOGGER.info("Récupération du statut de Chaos Monkey");
+        return webClient
+                .get()
+                .uri("/actuator/chaosmonkey/status")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Erreur côté client")))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Erreur côté serveur")))
+                .bodyToMono(ChaosMonkeyStatusResponseDto.class)
+                .block();
     }
 
     public ChaosMonkeyStatusResponseDto enable() throws Exception {
-        return actuatorApiClient.enableChaosMonkey();
+        LOGGER.info("Activation de Chaos Monkey");
+        return webClient
+                .post()
+                .uri("/actuator/chaosmonkey/enable")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Erreur côté client")))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Erreur côté serveur")))
+                .bodyToMono(ChaosMonkeyStatusResponseDto.class)
+                .block();
     }
 
     public ChaosMonkeyStatusResponseDto disable() throws Exception {
-        return actuatorApiClient.disableChaosMonkey();
+        LOGGER.info("Désactivation de Chaos Monkey");
+        return webClient
+                .post()
+                .uri("/actuator/chaosmonkey/disable")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Erreur côté client")))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Erreur côté serveur")))
+                .bodyToMono(ChaosMonkeyStatusResponseDto.class)
+                .block();
     }
 
-    public String updateWatcher(@Valid WatcherPropertiesUpdate properties) {
-        try {
-            String result = actuatorApiClient.updateWatcherProperties(properties);
-            LOGGER.info("Watcher properties successfully updated");
-            return result;
-        } catch (Exception e) {
-            // Journaliser l'erreur mais ne pas bloquer l'utilisateur
-            LOGGER.error("Erreur lors de la mise à jour des propriétés des watchers", e);
-            // On retourne un message de succès car Chaos Monkey applique souvent les changements
-            // malgré l'erreur de réponse
-            return "OK - Propriétés mises à jour malgré une erreur de réponse";
-        }
+    public String updateWatcher(WatcherPropertiesUpdate properties) {
+        LOGGER.info("Mise à jour des propriétés du watcher de Chaos Monkey");
+        return webClient
+                .post()
+                .uri("/actuator/chaosmonkey/watchers")
+                .bodyValue(properties)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Erreur côté client")))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Erreur côté serveur")))
+                .bodyToMono(String.class)
+                .block();
     }
 
     public WatcherProperties getWatcherProperties() throws Exception {
-        return actuatorApiClient.getWatcherProperties();
+        LOGGER.info("Récupération des propriétés du watcher de Chaos Monkey");
+        var watcherProperties = webClient
+                .get()
+                .uri("/actuator/chaosmonkey/watchers")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Erreur côté client")))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Erreur côté serveur")))
+                .bodyToMono(WatcherProperties.class)
+                .block();
+        LOGGER.info("Propriétés du watcher récupérées : {}", watcherProperties);
+        return watcherProperties;
     }
 
     public AssaultPropertiesUpdate getAssaultProperties() throws Exception {
-        return actuatorApiClient.getAssaultProperties();
+        LOGGER.info("Récupération des propriétés des assaults de Chaos Monkey");
+        var assaultProperties = webClient
+                .get()
+                .uri("/actuator/chaosmonkey/assaults")
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Erreur côté client")))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Erreur côté serveur")))
+                .bodyToMono(AssaultPropertiesUpdate.class)
+                .block();
+        LOGGER.info("Propriétés des assaults récupérées : {}", assaultProperties);
+        return assaultProperties;
     }
 
-    public String updateAssault(@Valid AssaultPropertiesUpdate properties) {
-        try {
-            String result = actuatorApiClient.updateAssaultProperties(properties);
-            LOGGER.info("Assault properties successfully updated");
-            return result;
-        } catch (Exception e) {
-            // Journaliser l'erreur mais ne pas bloquer l'utilisateur
-            LOGGER.error("Erreur lors de la mise à jour des propriétés d'assault", e);
-            // On retourne un message de succès car Chaos Monkey applique souvent les changements
-            // malgré l'erreur de réponse
-            return "OK - Propriétés mises à jour malgré une erreur de réponse";
-        }
+    public String updateAssault(AssaultPropertiesUpdate properties) {
+        LOGGER.info("Mise à jour des propriétés des assaults de Chaos Monkey");
+        return webClient
+                .post()
+                .uri("/actuator/chaosmonkey/assaults")
+                .bodyValue(properties)
+                .retrieve()
+                .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Erreur côté client")))
+                .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Erreur côté serveur")))
+                .bodyToMono(String.class)
+                .block();
     }
     
     /**
@@ -78,7 +121,13 @@ public class ChaosMonkeyService {
      */
     public List<String> getAvailableBeans() {
         try {
-            var beansResponse = actuatorApiClient.beans();
+            var beansResponse = webClient.get()
+                    .uri("/actuator/beans")
+                    .retrieve()
+                    .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> Mono.error(new RuntimeException("Erreur côté client")))
+                    .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> Mono.error(new RuntimeException("Erreur côté serveur")))
+                    .bodyToMono(Object.class) // Utiliser Object pour une flexibilité maximale
+                    .block();
             
             // Si la réponse contient directement la liste des beans
             if (beansResponse != null) {

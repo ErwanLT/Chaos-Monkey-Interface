@@ -39,10 +39,9 @@
 			<artifactId>vaadin-spring-boot-starter</artifactId>
 		</dependency>
 
-		<!-- Feign client -->
 		<dependency>
-			<groupId>org.springframework.cloud</groupId>
-			<artifactId>spring-cloud-starter-openfeign</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-webflux</artifactId>
 		</dependency>
 
 		<!-- Jackson core modules (compatibles entre eux) -->
@@ -130,36 +129,6 @@
 					<preparationGoals>com.vaadin:vaadin-maven-plugin:${vaadin.version}:prepare-frontend com.vaadin:vaadin-maven-plugin:${vaadin.version}:build-frontend clean verify</preparationGoals>
 					<goals>deploy</goals>
 				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.openapitools</groupId>
-				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>7.13.0</version>
-				<executions>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
-						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/swagger/chaos-monkey-swagger.json</inputSpec>
-							<generatorName>spring</generatorName>
-							<configOptions>
-								<sourceFolder>src/gen/main/java</sourceFolder>
-								<configPackage>fr.eletutour.chaosmonkey.config</configPackage>
-								<dateLibrary>java8</dateLibrary>
-								<unhandledException>true</unhandledException>
-								<developerOrganization>chaosmonkey</developerOrganization>
-								<useTags>true</useTags>
-								<interfaceOnly>false</interfaceOnly>
-								<useResponseEntity>false</useResponseEntity>
-								<useJakartaEe>true</useJakartaEe>
-							</configOptions>
-							<library>spring-cloud</library>
-							<apiPackage>fr.eletutour.chaosmonkey.consumer.api</apiPackage>
-							<modelPackage>fr.eletutour.chaosmonkey.consumer.model</modelPackage>
-						</configuration>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>

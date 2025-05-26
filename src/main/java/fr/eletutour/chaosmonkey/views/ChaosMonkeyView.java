@@ -14,6 +14,7 @@ import com.vaadin.flow.component.html.NativeLabel;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -24,16 +25,15 @@ import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.theme.lumo.LumoUtility;
-import fr.eletutour.chaosmonkey.consumer.model.AssaultPropertiesUpdate;
-import fr.eletutour.chaosmonkey.consumer.model.ChaosMonkeyStatusResponseDto;
-import fr.eletutour.chaosmonkey.consumer.model.WatcherProperties;
-import fr.eletutour.chaosmonkey.consumer.model.WatcherPropertiesUpdate;
+import fr.eletutour.chaosmonkey.models.ChaosMonkeyStatusResponseDto;
+import fr.eletutour.chaosmonkey.models.WatcherProperties;
+import fr.eletutour.chaosmonkey.models.AssaultPropertiesUpdate;
+import fr.eletutour.chaosmonkey.models.WatcherPropertiesUpdate;
 import fr.eletutour.chaosmonkey.service.ChaosMonkeyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.vaadin.flow.component.combobox.MultiSelectComboBox;
 import com.vaadin.flow.component.accordion.Accordion;
-import com.vaadin.flow.component.accordion.AccordionPanel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -65,21 +65,8 @@ public class ChaosMonkeyView extends AppLayout {
         // Initialiser les modèles avec les données actuelles
         try {
             // Initialiser le modèle watcher
-            WatcherProperties watcherProps = chaosMonkeyService.getWatcherProperties();
-            this.watcherModel = new WatcherPropertiesUpdate()
-                    .controller(watcherProps.getController())
-                    .restController(watcherProps.getRestController())
-                    .service(watcherProps.getService())
-                    .repository(watcherProps.getRepository())
-                    .component(watcherProps.getComponent())
-                    .restTemplate(watcherProps.getRestTemplate())
-                    .webClient(watcherProps.getWebClient())
-                    .actuatorHealth(watcherProps.getActuatorHealth());
-            
-            if (watcherProps.getBeans() != null) {
-                this.watcherModel.beans(new ArrayList<>(watcherProps.getBeans()));
-            }
-            
+            initWatcherProperties(chaosMonkeyService);
+
             // Initialiser le modèle assault
             this.assaultModel = chaosMonkeyService.getAssaultProperties();
             
@@ -89,6 +76,25 @@ public class ChaosMonkeyView extends AppLayout {
             // On crée des modèles vides en cas d'erreur
             this.watcherModel = new WatcherPropertiesUpdate();
             this.assaultModel = new AssaultPropertiesUpdate();
+        }
+    }
+
+    private void initWatcherProperties(ChaosMonkeyService chaosMonkeyService) throws Exception {
+        WatcherProperties watcherProps = chaosMonkeyService.getWatcherProperties();
+        this.watcherModel = new WatcherPropertiesUpdate();
+        this.watcherModel.setController(watcherProps.getController());
+        this.watcherModel.setRestController(watcherProps.getRestController());
+        this.watcherModel.setService(watcherProps.getService());
+        this.watcherModel.setRepository(watcherProps.getRepository());
+        this.watcherModel.setComponent(watcherProps.getComponent());
+        this.watcherModel.setRestTemplate(watcherProps.getRestTemplate());
+        this.watcherModel.setWebClient(watcherProps.getWebClient());
+        this.watcherModel.setActuatorHealth(watcherProps.getActuatorHealth());
+
+        if (watcherProps.getBeans() != null) {
+            this.watcherModel.setBeans(new ArrayList<>(watcherProps.getBeans()));
+        } else {
+            this.watcherModel.setBeans(new ArrayList<>());
         }
     }
 
@@ -331,16 +337,15 @@ public class ChaosMonkeyView extends AppLayout {
         Checkbox restTemplateCheck = new Checkbox("Rest Template");
         Checkbox webClientCheck = new Checkbox("Web Client");
         Checkbox actuatorHealthCheck = new Checkbox("Actuator Health");
-        
-        // Liaison des champs avec le binder
-        watcherBinder.forField(controllerCheck).bind("controller");
-        watcherBinder.forField(restControllerCheck).bind("restController");
-        watcherBinder.forField(serviceCheck).bind("service");
-        watcherBinder.forField(repositoryCheck).bind("repository");
-        watcherBinder.forField(componentCheck).bind("component");
-        watcherBinder.forField(restTemplateCheck).bind("restTemplate");
-        watcherBinder.forField(webClientCheck).bind("webClient");
-        watcherBinder.forField(actuatorHealthCheck).bind("actuatorHealth");
+
+        watcherBinder.forField(controllerCheck).bind(WatcherPropertiesUpdate::getController, WatcherPropertiesUpdate::setController);
+        watcherBinder.forField(restControllerCheck).bind(WatcherPropertiesUpdate::getRestController, WatcherPropertiesUpdate::setRestController);
+        watcherBinder.forField(serviceCheck).bind(WatcherPropertiesUpdate::getService, WatcherPropertiesUpdate::setService);
+        watcherBinder.forField(repositoryCheck).bind(WatcherPropertiesUpdate::getRepository, WatcherPropertiesUpdate::setRepository);
+        watcherBinder.forField(componentCheck).bind(WatcherPropertiesUpdate::getComponent, WatcherPropertiesUpdate::setComponent);
+        watcherBinder.forField(restTemplateCheck).bind(WatcherPropertiesUpdate::getRestTemplate, WatcherPropertiesUpdate::setRestTemplate);
+        watcherBinder.forField(webClientCheck).bind(WatcherPropertiesUpdate::getWebClient, WatcherPropertiesUpdate::setWebClient);
+        watcherBinder.forField(actuatorHealthCheck).bind(WatcherPropertiesUpdate::getActuatorHealth, WatcherPropertiesUpdate::setActuatorHealth);
         
         // Section pour les beans personnalisés
         VerticalLayout beansSection = new VerticalLayout();
@@ -405,45 +410,19 @@ public class ChaosMonkeyView extends AppLayout {
         
         // Bouton de soumission
         final Button submitButton = new Button("Mettre à jour");
-        submitButton.addClickListener(e -> {
+        submitButton.addClickListener(listener -> {
             try {
-                // Désactiver le bouton pendant le traitement
-                submitButton.setEnabled(false);
-                submitButton.setText("Mise à jour en cours...");
-                
-                // Le binder met déjà à jour le modèle, s'assurer que les beans sont à jour
-                watcherModel.setBeans(new ArrayList<>(beans));
-                
-                // Utilisation de l'API asynchrone de Vaadin pour éviter le blocage de l'UI
-                getUI().ifPresent(ui -> ui.access(() -> {
-                    try {
-                        String result = chaosMonkeyService.updateWatcher(watcherModel);
-                        
-                        // Afficher un message approprié en fonction de la réponse
-                        if (result != null && result.startsWith("OK")) {
-                            Notification.show("Configuration des watchers mise à jour avec succès", 
-                                    3000, Notification.Position.MIDDLE);
-                        } else {
-                            Notification.show("Mise à jour effectuée: " + result, 
-                                    3000, Notification.Position.MIDDLE);
-                        }
-                    } catch (Exception ex) {
-                        Notification.show("Erreur lors de la mise à jour: " + ex.getMessage(), 
-                                5000, Notification.Position.MIDDLE);
-                    } finally {
-                        // Réactiver le bouton quelle que soit l'issue
-                        submitButton.setEnabled(true);
-                        submitButton.setText("Mettre à jour");
-                    }
-                }));
+                watcherBinder.writeBean(watcherModel);
+                chaosMonkeyService.updateWatcher(watcherModel);
+                Notification success = new Notification("Configuration des watchers mise à jour avec succès",
+                        3000, Notification.Position.MIDDLE);
+                success.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                success.open();
             } catch (Exception ex) {
-                // En cas d'erreur lors de la création de l'objet ou d'autres traitements
-                Notification.show("Erreur lors de la préparation de la mise à jour: " + ex.getMessage(), 
+                Notification error = new Notification("Erreur lors de la mise à jour: " + ex.getMessage(),
                         5000, Notification.Position.MIDDLE);
-                
-                // Réactiver le bouton
-                submitButton.setEnabled(true);
-                submitButton.setText("Mettre à jour");
+                error.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                error.open();
             }
         });
         submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
@@ -482,8 +461,8 @@ public class ChaosMonkeyView extends AppLayout {
         Checkbox deterministicCheck = new Checkbox("Déterministe");
         
         // Liaison avec le binder
-        assaultBinder.forField(levelField).bind("level");
-        assaultBinder.forField(deterministicCheck).bind("deterministic");
+        assaultBinder.forField(levelField).bind(AssaultPropertiesUpdate::getLevel, AssaultPropertiesUpdate::setLevel);
+        assaultBinder.forField(deterministicCheck).bind(AssaultPropertiesUpdate::getDeterministic, AssaultPropertiesUpdate::setDeterministic);
         
         generalForm.add(levelField, deterministicCheck);
         
@@ -514,9 +493,9 @@ public class ChaosMonkeyView extends AppLayout {
         });
         
         // Liaison avec le binder
-        assaultBinder.forField(latencyActiveCheck).bind("latencyActive");
-        assaultBinder.forField(latencyStartField).bind("latencyRangeStart");
-        assaultBinder.forField(latencyEndField).bind("latencyRangeEnd");
+        assaultBinder.forField(latencyActiveCheck).bind(AssaultPropertiesUpdate::getLatencyActive, AssaultPropertiesUpdate::setLatencyActive);
+        assaultBinder.forField(latencyStartField).bind(AssaultPropertiesUpdate::getLatencyRangeStart, AssaultPropertiesUpdate::setLatencyRangeStart);
+        assaultBinder.forField(latencyEndField).bind(AssaultPropertiesUpdate::getLatencyRangeEnd, AssaultPropertiesUpdate::setLatencyRangeEnd);
         
         latencyForm.add(latencyActiveCheck, 2);
         latencyForm.add(latencyStartField, latencyEndField);
@@ -540,7 +519,7 @@ public class ChaosMonkeyView extends AppLayout {
         });
         
         // Liaison avec le binder
-        assaultBinder.forField(exceptionsActiveCheck).bind("exceptionsActive");
+        assaultBinder.forField(exceptionsActiveCheck).bind(AssaultPropertiesUpdate::getExceptionsActive, AssaultPropertiesUpdate::setExceptionsActive);
         // La liaison pour exception.type nécessite un mapping spécial qu'on traitera plus tard
         
         exceptionsForm.add(exceptionsActiveCheck, 2);
@@ -577,8 +556,8 @@ public class ChaosMonkeyView extends AppLayout {
         });
         
         // Liaison avec le binder
-        assaultBinder.forField(killAppActiveCheck).bind("killApplicationActive");
-        assaultBinder.forField(killAppCronField).bind("killApplicationCronExpression");
+        assaultBinder.forField(killAppActiveCheck).bind(AssaultPropertiesUpdate::getKillApplicationActive, AssaultPropertiesUpdate::setKillApplicationActive);
+        assaultBinder.forField(killAppCronField).bind(AssaultPropertiesUpdate::getKillApplicationCronExpression, AssaultPropertiesUpdate::setKillApplicationCronExpression);
         
         killAppForm.add(killAppActiveCheck, 2);
         killAppForm.add(killAppCronField, 2);
@@ -637,12 +616,12 @@ public class ChaosMonkeyView extends AppLayout {
         });
         
         // Liaison avec le binder
-        assaultBinder.forField(memoryActiveCheck).bind("memoryActive");
-        assaultBinder.forField(memoryCronField).bind("memoryCronExpression");
-        assaultBinder.forField(memoryHoldField).bind("memoryMillisecondsHoldFilledMemory");
-        assaultBinder.forField(memoryWaitField).bind("memoryMillisecondsWaitNextIncrease");
-        assaultBinder.forField(memoryIncrementField).bind("memoryFillIncrementFraction");
-        assaultBinder.forField(memoryTargetField).bind("memoryFillTargetFraction");
+        assaultBinder.forField(memoryActiveCheck).bind(AssaultPropertiesUpdate::getMemoryActive, AssaultPropertiesUpdate::setMemoryActive);
+        assaultBinder.forField(memoryCronField).bind(AssaultPropertiesUpdate::getMemoryCronExpression, AssaultPropertiesUpdate::setMemoryCronExpression);
+        assaultBinder.forField(memoryHoldField).bind(AssaultPropertiesUpdate::getMemoryMillisecondsHoldFilledMemory, AssaultPropertiesUpdate::setMemoryMillisecondsHoldFilledMemory);
+        assaultBinder.forField(memoryWaitField).bind(AssaultPropertiesUpdate::getMemoryMillisecondsWaitNextIncrease, AssaultPropertiesUpdate::setMemoryMillisecondsWaitNextIncrease);
+        assaultBinder.forField(memoryIncrementField).bind(AssaultPropertiesUpdate::getMemoryFillIncrementFraction, AssaultPropertiesUpdate::setMemoryFillIncrementFraction);
+        assaultBinder.forField(memoryTargetField).bind(AssaultPropertiesUpdate::getMemoryFillTargetFraction, AssaultPropertiesUpdate::setMemoryFillTargetFraction);
         
         memoryForm.add(memoryActiveCheck, 2);
         memoryForm.add(memoryCronField, 2);
@@ -692,10 +671,10 @@ public class ChaosMonkeyView extends AppLayout {
         });
         
         // Liaison avec le binder
-        assaultBinder.forField(cpuActiveCheck).bind("cpuActive");
-        assaultBinder.forField(cpuCronField).bind("cpuCronExpression");
-        assaultBinder.forField(cpuHoldField).bind("cpuMillisecondsHoldLoad");
-        assaultBinder.forField(cpuLoadField).bind("cpuLoadTargetFraction");
+        assaultBinder.forField(cpuActiveCheck).bind(AssaultPropertiesUpdate::getCpuActive, AssaultPropertiesUpdate::setCpuActive);
+        assaultBinder.forField(cpuCronField).bind(AssaultPropertiesUpdate::getCpuCronExpression, AssaultPropertiesUpdate::setCpuCronExpression);
+        assaultBinder.forField(cpuHoldField).bind(AssaultPropertiesUpdate::getCpuMillisecondsHoldLoad, AssaultPropertiesUpdate::setCpuMillisecondsHoldLoad);
+        assaultBinder.forField(cpuLoadField).bind(AssaultPropertiesUpdate::getCpuLoadTargetFraction, AssaultPropertiesUpdate::setCpuLoadTargetFraction);
         
         cpuForm.add(cpuActiveCheck, 2);
         cpuForm.add(cpuCronField, 2);
@@ -720,10 +699,10 @@ public class ChaosMonkeyView extends AppLayout {
         if (assaultModel.getWatchedCustomServices() != null) {
             watchedServices.addAll(assaultModel.getWatchedCustomServices());
         }
-        
+
         // Initialiser la liste des services
         updateServicesList(servicesList, watchedServices);
-        
+
         // Chargement des services disponibles
         List<String> availableServices = new ArrayList<>();
         try {
@@ -732,13 +711,13 @@ public class ChaosMonkeyView extends AppLayout {
             LOGGER.error("Erreur lors du chargement des services disponibles", e);
             // Continuer sans les services disponibles
         }
-        
+
         // MultiSelectComboBox pour sélectionner depuis les services disponibles
         MultiSelectComboBox<String> serviceSelect = new MultiSelectComboBox<>("Sélectionner des services");
         serviceSelect.setItems(availableServices);
         serviceSelect.setWidth("400px"); // Agrandir le composant
         serviceSelect.setHeight("250px"); // Définir une hauteur pour voir plusieurs éléments
-        
+
         Button addServiceButton = new Button("Ajouter", e -> {
             Set<String> selectedServices = serviceSelect.getValue();
             if (selectedServices != null && !selectedServices.isEmpty()) {
@@ -757,56 +736,30 @@ public class ChaosMonkeyView extends AppLayout {
                 }
             }
         });
-        
+
         HorizontalLayout serviceSelectionLayout = new HorizontalLayout(serviceSelect, addServiceButton);
         serviceSelectionLayout.setAlignItems(FlexComponent.Alignment.BASELINE);
-        
+
         customServicesSection.add(servicesList, serviceSelectionLayout);
-        
+
         // Ajouter au layout principal avec un titre
         mainLayout.add(new H3("Services personnalisés"), customServicesSection);
         
         // Bouton de soumission
         final Button submitButton = new Button("Mettre à jour");
-        submitButton.addClickListener(e -> {
+        submitButton.addClickListener(listener -> {
             try {
-                // Désactiver le bouton pendant le traitement
-                submitButton.setEnabled(false);
-                submitButton.setText("Mise à jour en cours...");
-                
-                // Le binder met déjà à jour le modèle, s'assurer que les services sont à jour
-                assaultModel.setWatchedCustomServices(new ArrayList<>(watchedServices));
-                
-                // Utilisation de l'API asynchrone de Vaadin pour éviter le blocage de l'UI
-                getUI().ifPresent(ui -> ui.access(() -> {
-                    try {
-                        String result = chaosMonkeyService.updateAssault(assaultModel);
-                        
-                        // Afficher un message approprié en fonction de la réponse
-                        if (result != null && result.startsWith("OK")) {
-                            Notification.show("Configuration des assaults mise à jour avec succès", 
-                                    3000, Notification.Position.MIDDLE);
-                        } else {
-                            Notification.show("Mise à jour effectuée: " + result, 
-                                    3000, Notification.Position.MIDDLE);
-                        }
-                    } catch (Exception ex) {
-                        Notification.show("Erreur lors de la mise à jour: " + ex.getMessage(), 
-                                5000, Notification.Position.MIDDLE);
-                    } finally {
-                        // Réactiver le bouton quelle que soit l'issue
-                        submitButton.setEnabled(true);
-                        submitButton.setText("Mettre à jour");
-                    }
-                }));
+                assaultBinder.writeBean(assaultModel);
+                chaosMonkeyService.updateAssault(assaultModel);
+                Notification success = new Notification("Configuration des assaults mise à jour avec succès",
+                        3000, Notification.Position.MIDDLE);
+                success.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
+                success.open();
             } catch (Exception ex) {
-                // En cas d'erreur lors de la création de l'objet ou d'autres traitements
-                Notification.show("Erreur lors de la préparation de la mise à jour: " + ex.getMessage(), 
+                Notification error = new Notification("Erreur lors de la mise à jour: " + ex.getMessage(),
                         5000, Notification.Position.MIDDLE);
-                
-                // Réactiver le bouton
-                submitButton.setEnabled(true);
-                submitButton.setText("Mettre à jour");
+                error.addThemeVariants(NotificationVariant.LUMO_ERROR);
+                error.open();
             }
         });
         submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
