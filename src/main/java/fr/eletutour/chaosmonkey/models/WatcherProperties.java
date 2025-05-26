@@ -1,6 +1,5 @@
 package fr.eletutour.chaosmonkey.models;
 
-import jakarta.validation.Valid;
 import org.springframework.lang.Nullable;
 
 import java.util.ArrayList;
