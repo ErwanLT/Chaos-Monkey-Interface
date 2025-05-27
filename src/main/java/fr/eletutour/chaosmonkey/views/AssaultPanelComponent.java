@@ -19,6 +19,7 @@ import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.NumberField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
+import com.vaadin.flow.data.binder.Validator;
 import fr.eletutour.chaosmonkey.models.AssaultPropertiesUpdate;
 import fr.eletutour.chaosmonkey.service.ChaosMonkeyService;
 import fr.eletutour.chaosmonkey.utils.CronExpressionExplainer;
@@ -116,30 +117,36 @@ public class AssaultPanelComponent extends VerticalLayout {
     private Component createKillAppSection() {
         FormLayout killAppForm = new FormLayout();
         killAppForm.setResponsiveSteps(
-            new FormLayout.ResponsiveStep("0", 1),
-            new FormLayout.ResponsiveStep("500px", 2));
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("500px", 2));
 
         Checkbox killAppActiveCheck = new Checkbox("Activer Kill Application");
-        TextField killAppCronField = new TextField("Expression Cron");
-        killAppCronField.setPlaceholder("0 0/15 * * * ?");
+        CronExpressionEditor cronEditor = new CronExpressionEditor();
         NativeLabel killAppCronExplanation = new NativeLabel("Planification: Non définie");
         killAppCronExplanation.getStyle().set("font-size", "var(--lumo-font-size-xs)");
         killAppCronExplanation.getStyle().set("color", "var(--lumo-secondary-text-color)");
 
-        killAppCronField.addValueChangeListener(event -> 
-            killAppCronExplanation.setText("Planification: " + CronExpressionExplainer.explainCronExpression(event.getValue())));
+        cronEditor.addValueChangeListener(event ->
+                killAppCronExplanation.setText("Planification: " + CronExpressionExplainer.explainCronExpression(cronEditor.getValue())));
 
         killAppActiveCheck.addValueChangeListener(event -> {
             boolean enabled = event.getValue();
-            killAppCronField.setEnabled(enabled);
+            cronEditor.setEnabled(enabled);
             killAppCronExplanation.setVisible(enabled);
         });
 
         binder.forField(killAppActiveCheck).bind(AssaultPropertiesUpdate::getKillApplicationActive, AssaultPropertiesUpdate::setKillApplicationActive);
-        binder.forField(killAppCronField).bind(AssaultPropertiesUpdate::getKillApplicationCronExpression, AssaultPropertiesUpdate::setKillApplicationCronExpression);
+        cronEditor.bind(binder,
+                Validator.from(cron -> {
+                    String explanation = CronExpressionExplainer.explainCronExpression(cron);
+                    return !explanation.equals("Expression incomplète") && !explanation.equals("Expression non reconnue");
+                }, "Expression Cron invalide"),
+                AssaultPropertiesUpdate::getKillApplicationCronExpression,
+                AssaultPropertiesUpdate::setKillApplicationCronExpression
+        );
 
         killAppForm.add(killAppActiveCheck, 2);
-        killAppForm.add(killAppCronField, 2);
+        killAppForm.add(cronEditor, 2);
         killAppForm.add(killAppCronExplanation, 2);
         return new VerticalLayout(new H3("Kill Application"), killAppForm);
     }
@@ -147,18 +154,17 @@ public class AssaultPanelComponent extends VerticalLayout {
     private Component createMemorySection() {
         FormLayout memoryForm = new FormLayout();
         memoryForm.setResponsiveSteps(
-            new FormLayout.ResponsiveStep("0", 1),
-            new FormLayout.ResponsiveStep("500px", 2));
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("500px", 2));
 
         Checkbox memoryActiveCheck = new Checkbox("Activer assault mémoire");
-        TextField memoryCronField = new TextField("Expression Cron");
-        memoryCronField.setPlaceholder("0 0/15 * * * ?");
+        CronExpressionEditor cronEditor = new CronExpressionEditor();
         NativeLabel memoryCronExplanation = new NativeLabel("Planification: Non définie");
         memoryCronExplanation.getStyle().set("font-size", "var(--lumo-font-size-xs)");
         memoryCronExplanation.getStyle().set("color", "var(--lumo-secondary-text-color)");
 
-        memoryCronField.addValueChangeListener(event -> 
-            memoryCronExplanation.setText("Planification: " + CronExpressionExplainer.explainCronExpression(event.getValue())));
+        cronEditor.addValueChangeListener(event ->
+                memoryCronExplanation.setText("Planification: " + CronExpressionExplainer.explainCronExpression(cronEditor.getValue())));
 
         IntegerField memoryHoldField = new IntegerField("Durée de remplissage (ms)");
         memoryHoldField.setMin(1500);
@@ -177,7 +183,7 @@ public class AssaultPanelComponent extends VerticalLayout {
 
         memoryActiveCheck.addValueChangeListener(event -> {
             boolean enabled = event.getValue();
-            memoryCronField.setEnabled(enabled);
+            cronEditor.setEnabled(enabled);
             memoryCronExplanation.setVisible(enabled);
             memoryHoldField.setEnabled(enabled);
             memoryWaitField.setEnabled(enabled);
@@ -186,14 +192,21 @@ public class AssaultPanelComponent extends VerticalLayout {
         });
 
         binder.forField(memoryActiveCheck).bind(AssaultPropertiesUpdate::getMemoryActive, AssaultPropertiesUpdate::setMemoryActive);
-        binder.forField(memoryCronField).bind(AssaultPropertiesUpdate::getMemoryCronExpression, AssaultPropertiesUpdate::setMemoryCronExpression);
+        cronEditor.bind(binder,
+                Validator.from(cron -> {
+                    String explanation = CronExpressionExplainer.explainCronExpression(cron);
+                    return !explanation.equals("Expression incomplète") && !explanation.equals("Expression non reconnue");
+                }, "Expression Cron invalide"),
+                AssaultPropertiesUpdate::getMemoryCronExpression,
+                AssaultPropertiesUpdate::setMemoryCronExpression
+        );
         binder.forField(memoryHoldField).bind(AssaultPropertiesUpdate::getMemoryMillisecondsHoldFilledMemory, AssaultPropertiesUpdate::setMemoryMillisecondsHoldFilledMemory);
         binder.forField(memoryWaitField).bind(AssaultPropertiesUpdate::getMemoryMillisecondsWaitNextIncrease, AssaultPropertiesUpdate::setMemoryMillisecondsWaitNextIncrease);
         binder.forField(memoryIncrementField).bind(AssaultPropertiesUpdate::getMemoryFillIncrementFraction, AssaultPropertiesUpdate::setMemoryFillIncrementFraction);
         binder.forField(memoryTargetField).bind(AssaultPropertiesUpdate::getMemoryFillTargetFraction, AssaultPropertiesUpdate::setMemoryFillTargetFraction);
 
         memoryForm.add(memoryActiveCheck, 2);
-        memoryForm.add(memoryCronField, 2);
+        memoryForm.add(cronEditor, 2);
         memoryForm.add(memoryCronExplanation, 2);
         memoryForm.add(memoryHoldField, memoryWaitField);
         memoryForm.add(memoryIncrementField, memoryTargetField);
@@ -203,18 +216,17 @@ public class AssaultPanelComponent extends VerticalLayout {
     private Component createCpuSection() {
         FormLayout cpuForm = new FormLayout();
         cpuForm.setResponsiveSteps(
-            new FormLayout.ResponsiveStep("0", 1),
-            new FormLayout.ResponsiveStep("500px", 2));
+                new FormLayout.ResponsiveStep("0", 1),
+                new FormLayout.ResponsiveStep("500px", 2));
 
         Checkbox cpuActiveCheck = new Checkbox("Activer assault CPU");
-        TextField cpuCronField = new TextField("Expression Cron");
-        cpuCronField.setPlaceholder("0 0/15 * * * ?");
+        CronExpressionEditor cronEditor = new CronExpressionEditor();
         NativeLabel cpuCronExplanation = new NativeLabel("Planification: Non définie");
         cpuCronExplanation.getStyle().set("font-size", "var(--lumo-font-size-xs)");
         cpuCronExplanation.getStyle().set("color", "var(--lumo-secondary-text-color)");
 
-        cpuCronField.addValueChangeListener(event -> 
-            cpuCronExplanation.setText("Planification: " + CronExpressionExplainer.explainCronExpression(event.getValue())));
+        cronEditor.addValueChangeListener(event ->
+                cpuCronExplanation.setText("Planification: " + CronExpressionExplainer.explainCronExpression(cronEditor.getValue())));
 
         IntegerField cpuHoldField = new IntegerField("Durée de charge (ms)");
         cpuHoldField.setMin(1500);
@@ -226,19 +238,26 @@ public class AssaultPanelComponent extends VerticalLayout {
 
         cpuActiveCheck.addValueChangeListener(event -> {
             boolean enabled = event.getValue();
-            cpuCronField.setEnabled(enabled);
+            cronEditor.setEnabled(enabled);
             cpuCronExplanation.setVisible(enabled);
             cpuHoldField.setEnabled(enabled);
             cpuLoadField.setEnabled(enabled);
         });
 
         binder.forField(cpuActiveCheck).bind(AssaultPropertiesUpdate::getCpuActive, AssaultPropertiesUpdate::setCpuActive);
-        binder.forField(cpuCronField).bind(AssaultPropertiesUpdate::getCpuCronExpression, AssaultPropertiesUpdate::setCpuCronExpression);
+        cronEditor.bind(binder,
+                Validator.from(cron -> {
+                    String explanation = CronExpressionExplainer.explainCronExpression(cron);
+                    return !explanation.equals("Expression incomplète") && !explanation.equals("Expression non reconnue");
+                }, "Expression Cron invalide"),
+                AssaultPropertiesUpdate::getCpuCronExpression,
+                AssaultPropertiesUpdate::setCpuCronExpression
+        );
         binder.forField(cpuHoldField).bind(AssaultPropertiesUpdate::getCpuMillisecondsHoldLoad, AssaultPropertiesUpdate::setCpuMillisecondsHoldLoad);
         binder.forField(cpuLoadField).bind(AssaultPropertiesUpdate::getCpuLoadTargetFraction, AssaultPropertiesUpdate::setCpuLoadTargetFraction);
 
         cpuForm.add(cpuActiveCheck, 2);
-        cpuForm.add(cpuCronField, 2);
+        cpuForm.add(cronEditor, 2);
         cpuForm.add(cpuCronExplanation, 2);
         cpuForm.add(cpuHoldField, cpuLoadField);
         return new VerticalLayout(new H3("CPU"), cpuForm);
